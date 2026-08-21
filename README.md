@@ -6,8 +6,20 @@
   <img src="https://img.shields.io/badge/FFmpeg-6.0%2B-007808.svg?style=for-the-badge&logo=ffmpeg&logoColor=white" alt="FFmpeg">
   <img src="https://img.shields.io/badge/YouTube-Data%20API%20v3-FF0000.svg?style=for-the-badge&logo=youtube&logoColor=white" alt="YouTube Data API v3">
   <img src="https://img.shields.io/badge/Instagram-Reels%20API-E4405F.svg?style=for-the-badge&logo=instagram&logoColor=white" alt="Instagram Reels">
-  <img src="https://img.shields.io/badge/OS-Ubuntu%20%7C%20Debian%20%7C%20Windows-E95420.svg?style=for-the-badge&logo=ubuntu&logoColor=white" alt="Platform">
+  <img src="https://img.shields.io/badge/Platform-Ubuntu%20%7C%20Debian%20%7C%20Windows-E95420.svg?style=for-the-badge&logo=ubuntu&logoColor=white" alt="Platform">
 </p>
+
+---
+
+## ⚡ TEK KOMUTLA ETKİLEŞİMLİ KURULUM (Ubuntu 22.04 / 24.04 & Debian)
+
+Temiz bir Ubuntu sunucusu açtıktan sonra aşağıdaki **tek komutu** çalıştırmanız yeterlidir. Kurulum sihirbazı tüm sistem bağımlılıklarını (`FFmpeg`, `Python3`, `Venv`, `Fonts`) otomatik kurar, size API ve hesap bilgilerinizi tek tek sorarak `.env` dosyanızı oluşturur ve 7/24 otonom çalışma için `crontab` zamanlayıcınızı ayarlar:
+
+```bash
+curl -sSL https://raw.githubusercontent.com/beratcemzengin/auto-viral-media-engine/main/install.sh | bash
+```
+
+*(Veya `wget` ile: `wget -qO- https://raw.githubusercontent.com/beratcemzengin/auto-viral-media-engine/main/install.sh | bash`)*
 
 ---
 
@@ -68,107 +80,29 @@ Sistem tamamen optimize edilmiş, düşük CPU tüketimli ve bellek sızıntıs�
 
 ## 🔑 Gerekli API Anahtarları ve Hazırlık
 
-Projeyi çalıştırmadan önce aşağıdaki 5 servisin bilgilerini hazırlamanız gerekir (Hepsi ücretsizdir):
+Kurulum sihirbazı çalıştığında sizden şu 5 bilgiyi isteyecektir:
 
-### 1. Pexels API Anahtarı (YouTube B-Roll İçin)
-1. [Pexels API Portalına](https://www.pexels.com/api/) gidin ve ücretsiz üye olun.
-2. *"Your API Key"* sekmesinden anahtarınızı kopyalayın.
-3. `.env` dosyasındaki `PEXELS_API_KEY` alanına yapıştırın.
-
-### 2. TMDB API Anahtarı (Film & Dizi Keşfi İçin)
-1. [TheMovieDatabase (TMDB)](https://www.themoviedb.org/) hesabı açın.
-2. **Ayarlar > API** sekmesinden ücretsiz *Developer API v3* anahtarı oluşturun.
-3. `.env` dosyasındaki `TMDB_API_KEY` alanına yapıştırın.
-
-### 3. Google Cloud YouTube Data API v3 (YouTube Shorts Yükleyici)
-1. [Google Cloud Console](https://console.cloud.google.com/) üzerinde yeni bir proje oluşturun.
-2. **APIs & Services > Library** bölümünden **YouTube Data API v3**'ü etkinleştirin.
-3. **Credentials > Create Credentials > OAuth client ID** (Application Type: *Desktop App*) seçin.
-4. İndirilen JSON dosyasını `client_secrets.json` adıyla `shorts_automation/` klasörüne koyun.
-5. İlk çalıştırmada ekranda açılan Google onay linkinden kanala izin verin (`credentials.json` otomatik üretilir).
-
-### 4. Instagram Hesabı (EvdekiSinema İçin)
-1. Paylaşım yapılacak Instagram hesabının kullanıcı adı ve şifresini `.env` içine yazın.
-2. Sistem ilk girişte `session.json` oluşturur ve sonraki paylaşımlarda şifre sormadan oturumu sürdürür.
-
-### 5. SMTP E-Posta Bildirimi (Yandex / Gmail / Outlook)
-* **Yandex Mail:** `smtp.yandex.com:587`, TLS: Açık, [Yandex Uygulama Şifresi](https://id.yandex.com/security/app-passwords) kullanın.
-* **Gmail:** `smtp.gmail.com:587`, TLS: Açık, 2 Adımlı Doğrulama > [Google Uygulama Şifresi](https://myaccount.google.com/apppasswords) kullanın.
+1. **Pexels API Key:** [pexels.com/api](https://www.pexels.com/api/) (Ücretsiz dikey B-Roll video indirmeleri için).
+2. **TMDB API Key:** [themoviedb.org/settings/api](https://www.themoviedb.org/settings/api) (Ücretsiz film/dizi keşfi için).
+3. **YouTube Data API v3:** Google Cloud Console üzerinden OAuth `client_secrets.json` dosyası.
+4. **Instagram Kullanıcı Adı ve Şifresi:** Reels paylaşımları için.
+5. **SMTP Mail Bilgileri:** Yandex veya Gmail üzerinden anlık e-posta başarı/hata bildirimleri için.
 
 ---
 
-## 🛠️ Adım Adım Detaylı Kurulum Rehberi (Ubuntu / Debian Sunucu)
+## ⏰ 7/24 Otonom Yayın Takvimi (Crontab)
 
-### 1. Sunucu Paketlerini Güncelleyin ve FFmpeg Kurun
-```bash
-sudo apt update && sudo apt upgrade -y
-sudo apt install -y python3 python3-pip python3-venv ffmpeg fonts-dejavu fonts-freefont-ttf git curl
-```
+Otomatik kurulum sihirbazını çalıştırdığınızda aşağıdaki yayın takvimi sunucunuzun `crontab` tablosuna otomatik olarak eklenir:
 
-### 2. Depoyu Sunucuya Klonlayın
-```bash
-cd /opt
-sudo git clone https://github.com/beratcemzengin/auto-viral-media-engine.git
-sudo chown -R $USER:$USER /opt/auto-viral-media-engine
-cd /opt/auto-viral-media-engine
-```
-
-### 3. Python Sanal Ortamını (Venv) Kurun
-```bash
-python3 -m venv venv
-source venv/bin/activate
-pip install --upgrade pip
-pip install -r requirements.txt
-```
-
-### 4. Çevre Değişkenlerini (`.env`) Yapılandırın
-```bash
-cp .env.example .env
-nano .env
-```
-*(Tüm API anahtarlarınızı, Instagram bilgilerinizi ve e-posta SMTP ayarlarınızı doldurup `Ctrl+O`, `Enter`, `Ctrl+X` ile kaydedin).*
-
-### 5. Test Çalıştırması Yapın (Manuel Kontrol)
-
-**YouTube Shorts Testi:**
-```bash
-/opt/auto-viral-media-engine/venv/bin/python3 -m shorts_automation.main
-```
-
-**Instagram Reels Testi:**
-```bash
-/opt/auto-viral-media-engine/venv/bin/python3 -m evdekisinema_reels.main
-```
-
----
-
-## ⏰ 7/24 Otonom Zamanlayıcı Kurulumu (Crontab)
-
-Sunucunuzun başıboş, tam otomatik çalışması için cron zamanlayıcıyı açın:
-```bash
-crontab -e
-```
-
-Aşağıdaki satırları dosyanın en altına yapıştırın:
-
-```bash
-# ==============================================================================
-# OTONOM SOSYAL MEDYA FABRİKASI GÖREV ZAMANLAYICISI (Türkiye Saati / UTC+3)
-# ==============================================================================
-
-# 🍿 EvdekiSinema Instagram Reels Paylaşımları (Her Gün 09:00 ve 17:00 TSİ)
-0 6 * * * /opt/auto-viral-media-engine/venv/bin/python3 /opt/auto-viral-media-engine/evdekisinema_reels/main.py >> /opt/auto-viral-media-engine/evdekisinema_reels/logs/reels.log 2>&1
-0 14 * * * /opt/auto-viral-media-engine/venv/bin/python3 /opt/auto-viral-media-engine/evdekisinema_reels/main.py >> /opt/auto-viral-media-engine/evdekisinema_reels/logs/reels.log 2>&1
-
-# 🧠 YouTube Shorts Viral Mikro-Belgesel Yayınları (Günde 4 Video: 07:30, 11:00, 17:30, 20:00 TSİ)
-30 4 * * * /opt/auto-viral-media-engine/venv/bin/python3 /opt/auto-viral-media-engine/shorts_automation/main.py >> /opt/auto-viral-media-engine/shorts_automation/logs/shorts.log 2>&1
-0 8 * * * /opt/auto-viral-media-engine/venv/bin/python3 /opt/auto-viral-media-engine/shorts_automation/main.py >> /opt/auto-viral-media-engine/shorts_automation/logs/shorts.log 2>&1
-30 14 * * * /opt/auto-viral-media-engine/venv/bin/python3 /opt/auto-viral-media-engine/shorts_automation/main.py >> /opt/auto-viral-media-engine/shorts_automation/logs/shorts.log 2>&1
-0 17 * * * /opt/auto-viral-media-engine/venv/bin/python3 /opt/auto-viral-media-engine/shorts_automation/main.py >> /opt/auto-viral-media-engine/shorts_automation/logs/shorts.log 2>&1
-
-# 💾 Haftalık Tam Sistem & Canlı Veritabanı ZIP Yedeği (Her Pazar Gece 03:00 TSİ E-Posta İle)
-0 0 * * 0 /opt/auto-viral-media-engine/venv/bin/python3 /opt/auto-viral-media-engine/shorts_automation/server_backup_mailer.py >> /opt/auto-viral-media-engine/shorts_automation/logs/backup.log 2>&1
-```
+| Saat (TR) | Platform | Otomasyon Modülü | İçerik Özelliği |
+| :---: | :---: | :--- | :--- |
+| 🌅 **07:30** | **YouTube Shorts** | `shorts_automation` | 🧠 4 Sahneli Viral Mikro-Belgesel |
+| 🌅 **09:00** | **Instagram Reels** | `evdekisinema_reels` | 🍿 Sinematik Tam Fragman Reels |
+| ☀️ **11:00** | **YouTube Shorts** | `shorts_automation` | 🧠 4 Sahneli Viral Mikro-Belgesel |
+| 🌙 **17:00** | **Instagram Reels** | `evdekisinema_reels` | 🍿 Sinematik Tam Fragman Reels |
+| 🌙 **17:30** | **YouTube Shorts** | `shorts_automation` | 🧠 4 Sahneli Viral Mikro-Belgesel |
+| 🌙 **20:00** | **YouTube Shorts** | `shorts_automation` | 🧠 4 Sahneli Viral Mikro-Belgesel |
+| 🗓️ **Pazar 03:00** | **Sistem Yedeği** | `server_backup_mailer` | 💾 Haftalık Canlı ZIP Eki E-Postası |
 
 ---
 
