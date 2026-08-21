@@ -1,37 +1,37 @@
-# 🏛️ Sistem Mimarisi ve Teknik Tasarım (Architecture)
+# 🏛️ Technical Architecture & Internal Engine Design
 
-Bu belge, **Auto Viral Media Engine**'in modüler mimarisini, veri akışını ve video işleme algoritmalarını detaylandırır.
-
----
-
-## 1. Veri Akışı ve Durum Yönetimi (State Machine)
-
-### YouTube Shorts Akışı
-1. `script_generator.py` kuyruktaki en eski doğrulanmış JSON dosyasını okur.
-2. `database.is_already_posted(text)` fonksiyonu SHA-256 hash kontrolü yapar.
-3. `voice_subtitle.py` Microsoft Edge-TTS WebSocket üzerinden nöral ses ve senkronize `.vtt` üretir.
-4. `video_downloader.py` Pexels API'den 4 adet dikey HD video çeker.
-5. `video_editor.py` FFmpeg ile sahneleri birleştirir, 1080x1920'ye ölçekler ve marka logosunu ekler.
-6. `youtube_uploader.py` Google API ile videoyu kanala yükler.
-7. Yükleme başarılıysa dosya `posted_scripts/` klasörüne taşınır ve `posted_shorts.db` içine işlenir.
+This document details the modular architecture, data pipelines, and video rendering optimizations powering the **Auto Viral Media Engine**.
 
 ---
 
-## 2. FFmpeg Optimizasyonları (Hızlı Render)
+## 1. Pipeline Execution Flow
 
-Instagram Reels fragman işleme sürecinde video arka planı bulanıklaştırılırken doğrudan 1080p üzerinden filtre uygulamak CPU'yu kilitler. Bu nedenle **Downscale-Blur-Upscale** tekniği uygulanmıştır:
+### YouTube Shorts Engine
+1. `script_generator.py` queries the queue for the oldest verified brief.
+2. `database.is_already_posted(text)` performs a SHA-256 hash check to verify deduplication.
+3. `voice_subtitle.py` streams Microsoft Edge-TTS via WebSocket to generate human-like audio and timed `.vtt` subtitles.
+4. `video_downloader.py` requests 4 contextual vertical HD video clips from Pexels API.
+5. `video_editor.py` executes an FFmpeg filter chain (scale to 1080x1920, concatenate clips, duck background audio, overlay gold branding badge).
+6. `youtube_uploader.py` uploads the final MP4 using YouTube Data API v3 resumable chunking.
+7. Upon success, the script JSON is migrated to `posted_scripts/` and indexed in `posted_shorts.db`.
+
+---
+
+## 2. FFmpeg Performance Optimizations
+
+Generating blurred background canvas on 1080x1920 video can severely throttle single-threaded CPUs. To maximize rendering speed, the engine implements a **Downscale-Blur-Upscale** pipeline:
 
 ```text
-[0:v] -> 270x480'e küçült -> boxblur=8:1 uygula -> 1080x1920'ye büyüt -> Koyu arka plan olarak yerleştir
+[0:v] -> Downscale to 270x480 -> Apply boxblur=8:1 -> Upscale to 1080x1920 -> Overlay under main 16:9 trailer
 ```
 
-Bu yöntem sayesinde render süresi **3 dakikadan 25 saniyeye** düşürülmüştür.
+This reduces pixel blur computation by ~90%, cutting render times from **3+ minutes down to 25–35 seconds** on modest 2-core cloud VPS nodes.
 
 ---
 
-## 3. Veritabanı Şeması (SQLite)
+## 3. SQLite Database Schemas
 
-### `posted_shorts.db`
+### `posted_shorts.db` (YouTube Pipeline)
 ```sql
 CREATE TABLE posted_shorts (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -44,9 +44,10 @@ CREATE TABLE posted_shorts (
     status TEXT DEFAULT 'success',
     error_message TEXT
 );
+CREATE UNIQUE INDEX idx_shorts_text_hash ON posted_shorts(text_hash);
 ```
 
-### `posted.db` (Instagram)
+### `posted.db` (Instagram Pipeline)
 ```sql
 CREATE TABLE posts (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -59,4 +60,5 @@ CREATE TABLE posts (
     posted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     status TEXT DEFAULT 'success'
 );
+CREATE UNIQUE INDEX idx_tmdb_id_type ON posts(tmdb_id, media_type);
 ```
