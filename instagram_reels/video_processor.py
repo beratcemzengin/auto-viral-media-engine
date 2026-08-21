@@ -11,7 +11,7 @@ try:
 except Exception:
     DEFAULT_FFMPEG = "ffmpeg"
 
-logger = logging.getLogger("evdekisinema.processor")
+logger = logging.getLogger("instagram.processor")
 
 def get_font_file():
     if os.name == 'nt':
@@ -84,7 +84,7 @@ def process_trailer_to_reel(input_path, title, hook_text="HAFTANIN EN IYI FILM T
     safe_hook = clean_text_for_drawtext(hook_text)
     safe_info = clean_text_for_drawtext(f"IMDb: {vote_average}/10   |   {genres_str}")
     safe_platform = clean_text_for_drawtext(f"Nerede İzlenir: {platform_text}" if platform_text else "Sinemalarda & Dijitalde")
-    safe_cta = clean_text_for_drawtext("@evdekisinema   |   Kaydet & Arkadaşına Gönder")
+    safe_cta = clean_text_for_drawtext("@reels_cinema   |   Kaydet & Arkadaşına Gönder")
 
     words = safe_hook.split()
     if len(words) >= 4:

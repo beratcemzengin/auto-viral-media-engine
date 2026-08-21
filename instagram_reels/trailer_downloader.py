@@ -5,7 +5,7 @@ import sys
 import shutil
 from . import config
 
-logger = logging.getLogger("evdekisinema.downloader")
+logger = logging.getLogger("instagram.downloader")
 
 def get_ytdlp_cmd():
     which_yt = shutil.which("yt-dlp")

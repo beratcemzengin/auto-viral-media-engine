@@ -99,8 +99,8 @@ Configure the crontab schedule on your Linux server using `crontab -e`:
 
 ```bash
 # Instagram Reels (Daily at 09:00 & 17:00 TR Time / 06:00 & 14:00 UTC)
-0 6 * * * /opt/auto-viral-media-engine/venv/bin/python3 /opt/auto-viral-media-engine/evdekisinema_reels/main.py >> /opt/auto-viral-media-engine/evdekisinema_reels/logs/reels.log 2>&1
-0 14 * * * /opt/auto-viral-media-engine/venv/bin/python3 /opt/auto-viral-media-engine/evdekisinema_reels/main.py >> /opt/auto-viral-media-engine/evdekisinema_reels/logs/reels.log 2>&1
+0 6 * * * /opt/auto-viral-media-engine/venv/bin/python3 /opt/auto-viral-media-engine/instagram_reels/main.py >> /opt/auto-viral-media-engine/instagram_reels/logs/reels.log 2>&1
+0 14 * * * /opt/auto-viral-media-engine/venv/bin/python3 /opt/auto-viral-media-engine/instagram_reels/main.py >> /opt/auto-viral-media-engine/instagram_reels/logs/reels.log 2>&1
 
 # YouTube Shorts (4 Times Daily: 07:30, 11:00, 17:30, 20:00 TR Time)
 30 4 * * * /opt/auto-viral-media-engine/venv/bin/python3 /opt/auto-viral-media-engine/shorts_automation/main.py >> /opt/auto-viral-media-engine/shorts_automation/logs/shorts.log 2>&1
@@ -118,5 +118,5 @@ Configure the crontab schedule on your Linux server using `crontab -e`:
 
 * **Live Log Streaming:**
   * YouTube Shorts: `tail -f /opt/auto-viral-media-engine/shorts_automation/logs/shorts.log`
-  * Instagram Reels: `tail -f /opt/auto-viral-media-engine/evdekisinema_reels/logs/reels.log`
+  * Instagram Reels: `tail -f /opt/auto-viral-media-engine/instagram_reels/logs/reels.log`
 * **Disk Cleaning:** All temporary clips, rendered drafts, and voiceover audio files are automatically purged (`os.remove`) after every post attempt.

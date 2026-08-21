@@ -1,1 +1,0 @@
-# EvdekiSinema Reels Automation Module

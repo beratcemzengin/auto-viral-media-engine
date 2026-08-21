@@ -141,7 +141,7 @@ echo -e "${BLUE}[5/7] 🗄️ Initializing SQLite Databases & Anti-Duplicate Que
 import os, sys
 sys.path.insert(0, '$INSTALL_DIR')
 from shorts_automation import database as s_db, script_generator
-from evdekisinema_reels import database as r_db
+from instagram_reels import database as r_db
 s_db.init_db()
 script_generator._seed_stories()
 r_db.init_db()
@@ -165,8 +165,8 @@ if [[ "$CRON_CHOICE" =~ ^[YyEe]$ ]]; then
 
     cat <<EOF >> "$TMP_CRON"
 # Auto Viral Media Engine - Instagram Reels (09:00 & 17:00 TR Time)
-0 6 * * * $INSTALL_DIR/venv/bin/python3 $INSTALL_DIR/evdekisinema_reels/main.py >> $INSTALL_DIR/evdekisinema_reels/logs/reels.log 2>&1
-0 14 * * * $INSTALL_DIR/venv/bin/python3 $INSTALL_DIR/evdekisinema_reels/main.py >> $INSTALL_DIR/evdekisinema_reels/logs/reels.log 2>&1
+0 6 * * * $INSTALL_DIR/venv/bin/python3 $INSTALL_DIR/instagram_reels/main.py >> $INSTALL_DIR/instagram_reels/logs/reels.log 2>&1
+0 14 * * * $INSTALL_DIR/venv/bin/python3 $INSTALL_DIR/instagram_reels/main.py >> $INSTALL_DIR/instagram_reels/logs/reels.log 2>&1
 
 # Auto Viral Media Engine - YouTube Shorts (07:30, 11:00, 17:30, 20:00 TR Time)
 30 4 * * * $INSTALL_DIR/venv/bin/python3 $INSTALL_DIR/shorts_automation/main.py >> $INSTALL_DIR/shorts_automation/logs/shorts.log 2>&1
@@ -195,8 +195,8 @@ echo -e "📁 Install Directory: ${BOLD}${INSTALL_DIR}${NC}"
 echo -e "📝 Configuration: ${BOLD}${INSTALL_DIR}/.env${NC}"
 echo -e "\n${YELLOW}▶ Manual Test Commands:${NC}"
 echo -e "  - YouTube Shorts Test: ${BOLD}${INSTALL_DIR}/venv/bin/python3 -m shorts_automation.main${NC}"
-echo -e "  - Instagram Reels Test: ${BOLD}${INSTALL_DIR}/venv/bin/python3 -m evdekisinema_reels.main${NC}"
+echo -e "  - Instagram Reels Test: ${BOLD}${INSTALL_DIR}/venv/bin/python3 -m instagram_reels.main${NC}"
 echo -e "\n${YELLOW}📊 Live Log Monitoring:${NC}"
 echo -e "  - YouTube Log: ${BOLD}tail -f ${INSTALL_DIR}/shorts_automation/logs/shorts.log${NC}"
-echo -e "  - Instagram Log: ${BOLD}tail -f ${INSTALL_DIR}/evdekisinema_reels/logs/reels.log${NC}"
+echo -e "  - Instagram Log: ${BOLD}tail -f ${INSTALL_DIR}/instagram_reels/logs/reels.log${NC}"
 echo -e "\n${GREEN}The engine is now fully autonomous and running in the background! 🍿🚀${NC}\n"

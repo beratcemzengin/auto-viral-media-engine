@@ -3,7 +3,7 @@ import logging
 from instagrapi import Client
 from . import config
 
-logger = logging.getLogger("evdekisinema.poster")
+logger = logging.getLogger("instagram.poster")
 
 def get_instagram_client():
     cl = Client()

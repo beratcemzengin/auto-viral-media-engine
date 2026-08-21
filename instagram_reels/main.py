@@ -34,11 +34,11 @@ logging.basicConfig(
         logging.StreamHandler()
     ]
 )
-logger = logging.getLogger("evdekisinema.main")
+logger = logging.getLogger("instagram.main")
 
 def run_pipeline():
     logger.info("=" * 60)
-    logger.info(f"🎬 EvdekiSinema Reels Otomasyonu Başlatıldı - {datetime.now().strftime('%Y-%m-%d %H:%M')}")
+    logger.info(f"🎬 Instagram Reels Otomasyonu Başlatıldı - {datetime.now().strftime('%Y-%m-%d %H:%M')}")
     logger.info("=" * 60)
 
     for attempt in range(1, 4):

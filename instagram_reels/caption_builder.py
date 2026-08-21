@@ -10,7 +10,7 @@ def build_caption(item):
         f"⭐ IMDb: {vote_average}/10 | 🎭 Tür: {genres_str}\n\n"
         f"📝 Konusu:\n{overview[:300]}...\n\n"
         f"📌 Bu yapımı izlemeyi düşündüğün arkadaşına gönder veya listene kaydet!\n\n"
-        f"👉 Daha fazla film ve dizi önerisi için @evdekisinema hesabını takip et!\n\n"
-        f"#film #dizi #filmtavsiyesi #dizitavsiyesi #sinema #evdekisinema #netflix #primevideo #reels #keşfet"
+        f"👉 Daha fazla film ve dizi önerisi için @reels_cinema hesabını takip et!\n\n"
+        f"#film #dizi #filmtavsiyesi #dizitavsiyesi #sinema #movie_reels #netflix #primevideo #reels #keşfet"
     )
     return caption

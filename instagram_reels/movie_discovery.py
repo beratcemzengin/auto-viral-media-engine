@@ -4,7 +4,7 @@ import logging
 from . import config
 from . import database
 
-logger = logging.getLogger("evdekisinema.discovery")
+logger = logging.getLogger("instagram.discovery")
 
 GENRE_MAP = {
     28: "Aksiyon", 12: "Macera", 16: "Animasyon", 35: "Komedi", 80: "Suç",

@@ -5,7 +5,7 @@ from email.mime.multipart import MIMEMultipart
 from datetime import datetime
 from . import config
 
-logger = logging.getLogger("evdekisinema.notifier")
+logger = logging.getLogger("instagram.notifier")
 
 def send_notification_email(platform: str, status: str, title: str = "", url: str = "", error_msg: str = ""):
     if not config.ALERT_EMAIL_RECIPIENT or not config.SMTP_USER or not config.SMTP_PASSWORD:

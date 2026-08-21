@@ -34,7 +34,7 @@ curl -sSL https://raw.githubusercontent.com/beratcemzengin/auto-viral-media-engi
 * **Smart Audio & Logo Mixing:** Background music ducking, gold brand tag overlays, and seamless loop ending hooks.
 * **Dual-Layer Anti-Duplicate Engine:** SHA-256 text hashing stored in SQLite (`posted_shorts.db`) and automatic FIFO file migration (`approved_scripts/` ➔ `posted_scripts/`). Zero duplicate uploads guaranteed.
 
-### 2. 🍿 Instagram Reels Cinematic Engine (`evdekisinema_reels`)
+### 2. 🍿 Instagram Reels Cinematic Engine (`instagram_reels`)
 * **Automated Discovery:** Fetches trending movies, upcoming releases, and digital platform series via the TMDB API.
 * **Full Trailer Processing (Up to 90s):** Eliminates silent studio intros and preserves the entire action/dialogue trailer.
 * **Netflix & HBO Style Aesthetic:** Vertical dark gradient fade, blurred darkened background canvas (CPU-optimized downscale-blur-upscale pipeline), and floating badge boxes (IMDb Score, Genre, Platform, DM Share CTA).
@@ -129,7 +129,7 @@ nano .env
 
 # 5. Run manual test
 python3 -m shorts_automation.main
-python3 -m evdekisinema_reels.main
+python3 -m instagram_reels.main
 ```
 
 ---
@@ -144,8 +144,8 @@ Add the following schedule to `crontab -e`:
 # ==============================================================================
 
 # 🍿 Instagram Reels (Daily at 09:00 & 17:00 TR Time / 06:00 & 14:00 UTC)
-0 6 * * * /opt/auto-viral-media-engine/venv/bin/python3 /opt/auto-viral-media-engine/evdekisinema_reels/main.py >> /opt/auto-viral-media-engine/evdekisinema_reels/logs/reels.log 2>&1
-0 14 * * * /opt/auto-viral-media-engine/venv/bin/python3 /opt/auto-viral-media-engine/evdekisinema_reels/main.py >> /opt/auto-viral-media-engine/evdekisinema_reels/logs/reels.log 2>&1
+0 6 * * * /opt/auto-viral-media-engine/venv/bin/python3 /opt/auto-viral-media-engine/instagram_reels/main.py >> /opt/auto-viral-media-engine/instagram_reels/logs/reels.log 2>&1
+0 14 * * * /opt/auto-viral-media-engine/venv/bin/python3 /opt/auto-viral-media-engine/instagram_reels/main.py >> /opt/auto-viral-media-engine/instagram_reels/logs/reels.log 2>&1
 
 # 🧠 YouTube Shorts (4 Times Daily: 07:30, 11:00, 17:30, 20:00 TR Time)
 30 4 * * * /opt/auto-viral-media-engine/venv/bin/python3 /opt/auto-viral-media-engine/shorts_automation/main.py >> /opt/auto-viral-media-engine/shorts_automation/logs/shorts.log 2>&1
