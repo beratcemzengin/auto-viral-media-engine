@@ -25,6 +25,104 @@ curl -sSL https://raw.githubusercontent.com/beratcemzengin/auto-viral-media-engi
 
 ---
 
+## 🔑 Prerequisites & Detailed API Setup Guide
+
+Follow the step-by-step instructions below to obtain the required API credentials (all services offer generous free tiers):
+
+### 1. 🎥 Pexels API Key (Free HD Vertical B-Roll)
+*Pexels API is used by the YouTube Shorts engine to download dynamic, relevant 4-scene vertical HD B-Roll clips.*
+1. Go to [Pexels API Portal](https://www.pexels.com/api/) and sign up for a free account.
+2. Click **"Your API Key"** in the top navigation bar.
+3. Describe your application (e.g., *Automated social media content generator*) and accept the API terms.
+4. Copy the generated **API Key** (a 56-character string).
+5. Add it to your `.env` file:
+   ```ini
+   PEXELS_API_KEY=your_pexels_api_key_here
+   ```
+
+---
+
+### 2. 🎬 TMDB API Key (Free Movie & TV Discovery)
+*TheMovieDatabase (TMDB) API is used by the Instagram Reels engine to discover trending movies, series, and upcoming box-office releases.*
+1. Create a free account at [themoviedb.org](https://www.themoviedb.org/signup).
+2. Verify your email address and log in.
+3. Navigate to **Account Settings > API** ([themoviedb.org/settings/api](https://www.themoviedb.org/settings/api)).
+4. Click **"Create"** and select **"Developer"**.
+5. Accept the terms of service and fill in the required application details:
+   * **Application Name:** `Auto Viral Media Engine`
+   * **Application URL:** `https://github.com/beratcemzengin/auto-viral-media-engine`
+   * **Summary:** `Automated media discovery and trailer curation engine.`
+6. Copy the **API Key (v3 auth)**.
+7. Add it to your `.env` file:
+   ```ini
+   TMDB_API_KEY=your_tmdb_v3_api_key_here
+   ```
+
+---
+
+### 3. 🔴 Google Cloud YouTube Data API v3 (YouTube Uploads)
+*Google OAuth 2.0 credentials are required to automatically publish rendered Shorts to your YouTube channel.*
+1. Open the [Google Cloud Console](https://console.cloud.google.com/).
+2. Create a new project (e.g., `YouTube-Shorts-Automation`).
+3. In the sidebar, go to **APIs & Services > Library**, search for **YouTube Data API v3**, and click **Enable**.
+4. Go to **APIs & Services > OAuth consent screen**:
+   * Select User Type: **External** and click **Create**.
+   * Fill in **App Name** (`Shorts Uploader`) and **User Support Email**.
+   * Under **Test users**, click **+ ADD USERS** and enter the Gmail address associated with your YouTube channel.
+   * Save and continue.
+5. Go to **APIs & Services > Credentials**:
+   * Click **+ CREATE CREDENTIALS > OAuth client ID**.
+   * Application type: **Desktop app**.
+   * Name: `Shorts-Desktop-Client`.
+6. Click **Download JSON** on the created OAuth client.
+7. Rename the downloaded file to **`client_secrets.json`** and place it inside the `shorts_automation/` folder.
+8. **Initial Authorization:** Run the pipeline once (`python -m shorts_automation.main`). A Google authorization link will appear. Open the link, sign in with your channel's Google account, and grant upload permissions. A persistent **`credentials.json`** token will be generated automatically for 24/7 headless server uploads.
+
+---
+
+### 4. 📸 Instagram Account & Session Setup (Instagram Reels)
+*The Instagram engine uses private mobile API emulation (`instagrapi`) to upload 1080x1920 90s Reels with full custom metadata.*
+1. In your `.env` file, specify your account credentials:
+   ```ini
+   INSTAGRAM_USERNAME=your_instagram_username
+   INSTAGRAM_PASSWORD=your_instagram_password
+   ```
+2. **Session Persistence:** On the first successful login, the engine exports an authenticated device session to `instagram_reels/session.json`. Subsequent runs reuse this session cookie without triggering login checkpoints or 2FA challenges.
+
+---
+
+### 5. 📧 SMTP Email Notifications (Instant Alerts & Weekly Backups)
+*Get instant HTML email notifications when videos are published (or if an error occurs), plus automated weekly full system ZIP backups.*
+
+#### Option A: Yandex Mail (Recommended)
+1. Go to [Yandex ID Security](https://id.yandex.com/security/app-passwords).
+2. Click **App passwords > Create app password > Mail**.
+3. Copy the 16-character generated password and configure `.env`:
+   ```ini
+   ALERT_EMAIL_RECIPIENT=your_notification_email@gmail.com
+   SMTP_SERVER=smtp.yandex.com
+   SMTP_PORT=587
+   SMTP_USER=alert@yourdomain.com
+   SMTP_PASSWORD=your_yandex_app_password
+   SMTP_USE_TLS=true
+   ```
+
+#### Option B: Gmail (Google Workspace / Personal)
+1. Enable **2-Step Verification** on your Google Account.
+2. Visit [Google App Passwords](https://myaccount.google.com/apppasswords).
+3. Generate a new app password for **"Mail"**.
+4. Configure `.env`:
+   ```ini
+   ALERT_EMAIL_RECIPIENT=your_notification_email@gmail.com
+   SMTP_SERVER=smtp.gmail.com
+   SMTP_PORT=587
+   SMTP_USER=your_email@gmail.com
+   SMTP_PASSWORD=your_16_digit_gmail_app_password
+   SMTP_USE_TLS=true
+   ```
+
+---
+
 ## 🌟 Key Architecture & Capabilities
 
 ### 1. 🧠 YouTube Shorts Viral Engine (`shorts_automation`)
@@ -39,10 +137,6 @@ curl -sSL https://raw.githubusercontent.com/beratcemzengin/auto-viral-media-engi
 * **Full Trailer Processing (Up to 90s):** Eliminates silent studio intros and preserves the entire action/dialogue trailer.
 * **Netflix & HBO Style Aesthetic:** Vertical dark gradient fade, blurred darkened background canvas (CPU-optimized downscale-blur-upscale pipeline), and floating badge boxes (IMDb Score, Genre, Platform, DM Share CTA).
 * **Persistent Deduplication:** SQLite database (`posted.db`) with unique TMDB ID indexing prevents repeated posts.
-
-### 3. 📧 Enterprise Notifications & Backup Mailer
-* **Real-time HTML Email Alerts:** Immediate success/failure emails with direct post links and error tracebacks sent via SMTP.
-* **Weekly Automated System Backup:** Automatically zips all scripts, databases, and configuration files and emails them as an attachment every week.
 
 ---
 
@@ -76,8 +170,6 @@ graph TD
 
 ## 🖥️ Hardware & Server Requirements
 
-The engine features an asynchronous, low-CPU rendering pipeline optimized for lightweight virtual private servers (VPS) and home servers.
-
 | Component | Minimum Specification | Recommended Specification | Note |
 | :--- | :--- | :--- | :--- |
 | **Processor (CPU)** | 2 Cores (x86_64 or ARM64) | 4 Cores (Intel / AMD / ARM) | For FFmpeg encoding & blur rendering |
@@ -85,52 +177,6 @@ The engine features an asynchronous, low-CPU rendering pipeline optimized for li
 | **Storage (Disk)** | 15 GB SSD / NVMe | 40 GB NVMe SSD | Temporary video files are cleaned automatically |
 | **Network** | 10 Mbps Download / Upload | 50+ Mbps | For fast video download & upload |
 | **Operating System** | Ubuntu 22.04 / 24.04 LTS, Debian 11/12 | Ubuntu 24.04 LTS (Server) | Windows 10/11 Pro also supported |
-
-> [!TIP]
-> **Recommended Cloud VPS Providers:** Hetzner Cloud (CX22 / CPX21), DigitalOcean ($6–12 Droplet), Contabo VPS, AWS EC2 (t3.medium), or a local **CasaOS / Raspberry Pi 4-5 (8GB)** mini PC.
-
----
-
-## 🔑 Prerequisites & API Keys
-
-Before starting, obtain the following credentials (all have free tiers):
-
-1. **Pexels API Key:** [pexels.com/api](https://www.pexels.com/api/) (Free HD vertical B-Roll video downloads).
-2. **TMDB API Key:** [themoviedb.org/settings/api](https://www.themoviedb.org/settings/api) (Free movie and TV series discovery).
-3. **YouTube Data API v3:** Google Cloud Console OAuth 2.0 Desktop Application `client_secrets.json`.
-4. **Instagram Credentials:** Account username & password (session cookies are cached in `session.json`).
-5. **SMTP Mail Credentials:** Yandex, Gmail, or custom SMTP server for instant delivery alerts.
-
----
-
-## 🛠️ Manual Installation (Ubuntu / Debian)
-
-If you prefer to configure the system manually instead of using the 1-click installer:
-
-```bash
-# 1. Update system & install dependencies
-sudo apt update && sudo apt install -y python3 python3-pip python3-venv ffmpeg fonts-dejavu git curl
-
-# 2. Clone repository
-cd /opt
-sudo git clone https://github.com/beratcemzengin/auto-viral-media-engine.git
-sudo chown -R $USER:$USER /opt/auto-viral-media-engine
-cd /opt/auto-viral-media-engine
-
-# 3. Create virtual environment
-python3 -m venv venv
-source venv/bin/activate
-pip install --upgrade pip
-pip install -r requirements.txt
-
-# 4. Configure environment
-cp .env.example .env
-nano .env
-
-# 5. Run manual test
-python3 -m shorts_automation.main
-python3 -m instagram_reels.main
-```
 
 ---
 

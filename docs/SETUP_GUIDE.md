@@ -1,12 +1,12 @@
 # 📖 A-Z Setup & Deployment Guide
 
-This guide provides step-by-step instructions for deploying and configuring the **Auto Viral Media Engine** from scratch on Linux (Ubuntu / Debian) and Windows.
+This guide provides exhaustive step-by-step instructions for obtaining all required credentials and deploying the **Auto Viral Media Engine** from scratch on Linux (Ubuntu / Debian) and Windows.
 
 ---
 
 ## 📑 Table of Contents
-1. [Server & Hardware Requirements](#1-server--hardware-requirements)
-2. [Obtaining Required API Credentials](#2-obtaining-required-api-credentials)
+1. [Obtaining Required API Credentials](#1-obtaining-required-api-credentials)
+2. [Server & Hardware Requirements](#2-server--hardware-requirements)
 3. [Ubuntu / Debian Server Setup](#3-ubuntu--debian-server-setup)
 4. [Windows 10/11 Setup](#4-windows-1011-setup)
 5. [24/7 Automation & Crontab](#5-247-automation--crontab)
@@ -14,7 +14,102 @@ This guide provides step-by-step instructions for deploying and configuring the 
 
 ---
 
-## 1. Server & Hardware Requirements
+## 1. Obtaining Required API Credentials
+
+### A. Pexels API Key (Free HD Vertical B-Roll)
+1. Go to [Pexels API Portal](https://www.pexels.com/api/) and click **"Get Started"** to create a free account.
+2. Once logged in, click **"Your API Key"** in the top navigation menu.
+3. Fill in the short API request form (e.g., App Name: *Social Video Generator*, Description: *Autonomous micro-documentary B-roll curation*).
+4. Copy your **API Key** (e.g., `563492ad6f91700001000001...`).
+5. Add it to `.env`:
+   ```ini
+   PEXELS_API_KEY=your_pexels_api_key_here
+   ```
+
+---
+
+### B. TMDB API Key (Free Movie & TV Discovery)
+1. Create a free account at [themoviedb.org/signup](https://www.themoviedb.org/signup).
+2. Confirm your registration via email.
+3. Navigate to **Account Settings > API** ([themoviedb.org/settings/api](https://www.themoviedb.org/settings/api)).
+4. Under **"Request an API Key"**, click **"Create"** and select **"Developer"**.
+5. Accept the API terms and fill in the application form:
+   * **Type of Use:** Personal / Media Automation
+   * **Application Name:** `Auto Viral Media Engine`
+   * **Application URL:** `https://github.com/beratcemzengin/auto-viral-media-engine`
+   * **Summary:** `Automated movie/series trailer curation and Instagram Reels publisher.`
+6. Copy the generated **API Key (v3 auth)** string.
+7. Add it to `.env`:
+   ```ini
+   TMDB_API_KEY=your_tmdb_v3_api_key_here
+   ```
+
+---
+
+### C. Google Cloud YouTube Data API v3 (YouTube Uploads)
+1. Navigate to the [Google Cloud Console](https://console.cloud.google.com/).
+2. Click the project dropdown at the top and select **"NEW PROJECT"** (e.g., `Shorts-Automation-Production`).
+3. In the left navigation menu, go to **APIs & Services > Library**.
+4. Search for **"YouTube Data API v3"**, click on it, and click **ENABLE**.
+5. Go to **APIs & Services > OAuth consent screen**:
+   * Choose **External** and click **CREATE**.
+   * Enter **App Name** (`Shorts Uploader`) and **User support email**.
+   * Under **Developer contact information**, enter your email and click **SAVE AND CONTINUE**.
+   * Under **Test users**, click **+ ADD USERS**, type the Gmail address of your YouTube channel, and click **SAVE AND CONTINUE**.
+6. Go to **APIs & Services > Credentials**:
+   * Click **+ CREATE CREDENTIALS > OAuth client ID**.
+   * Select **Application type: Desktop app**.
+   * Name: `Shorts-Desktop-Client`.
+   * Click **CREATE**.
+7. In the credentials list, click the **Download JSON** icon next to your client ID.
+8. Rename the downloaded file to **`client_secrets.json`** and place it in the `shorts_automation/` directory.
+9. **First Run Authentication:** Run `python -m shorts_automation.main` locally. An authorization URL will appear in your console. Open it in a browser, sign in with your YouTube channel Google account, and grant access. The token will be saved permanently as **`credentials.json`** for headless server execution.
+
+---
+
+### D. Instagram Credentials & Session Caching
+1. In your `.env` file, supply your Instagram username and password:
+   ```ini
+   INSTAGRAM_USERNAME=your_instagram_username
+   INSTAGRAM_PASSWORD=your_instagram_password
+   ```
+2. The engine uses `instagrapi` to emulate a physical Google Pixel 8 Pro device. Upon first login, it saves your authenticated session state to `instagram_reels/session.json`.
+3. Subsequent requests load this cookie file directly, avoiding repeated password verifications and checkpoint challenges.
+
+---
+
+### E. SMTP Email Configuration (Instant Alerts & Weekly Backup Delivery)
+
+#### Option 1: Yandex Mail
+1. Log in to [Yandex ID Security](https://id.yandex.com/security/app-passwords).
+2. Click **App passwords > Add app password > Mail**.
+3. Copy the generated 16-letter app password and add to `.env`:
+   ```ini
+   ALERT_EMAIL_RECIPIENT=your_notification_email@gmail.com
+   SMTP_SERVER=smtp.yandex.com
+   SMTP_PORT=587
+   SMTP_USER=alert@yourdomain.com
+   SMTP_PASSWORD=your_yandex_app_password
+   SMTP_USE_TLS=true
+   ```
+
+#### Option 2: Gmail (Google Workspace or @gmail.com)
+1. Turn on **2-Step Verification** on your Google Account.
+2. Go to [Google App Passwords](https://myaccount.google.com/apppasswords).
+3. Create a new app password named **"Auto Media Mailer"**.
+4. Copy the 16-character code and add to `.env`:
+   ```ini
+   ALERT_EMAIL_RECIPIENT=your_notification_email@gmail.com
+   SMTP_SERVER=smtp.gmail.com
+   SMTP_PORT=587
+   SMTP_USER=your_email@gmail.com
+   SMTP_PASSWORD=your_16_char_gmail_app_password
+   SMTP_USE_TLS=true
+   ```
+
+---
+
+## 2. Server & Hardware Requirements
 
 * **Cloud VPS (Recommended):**
   * **Hetzner Cloud:** CX22 (2 vCPU, 4GB RAM, 40GB SSD) ~ 4€/mo.
@@ -24,31 +119,6 @@ This guide provides step-by-step instructions for deploying and configuring the 
   * Mini PC (Intel N100 / Core i3 / i5)
   * Raspberry Pi 4 or 5 (8GB RAM Model)
   * CasaOS / Debian Home Server.
-
----
-
-## 2. Obtaining Required API Credentials
-
-### A. Pexels API Key (Free)
-1. Go to [pexels.com/api](https://www.pexels.com/api/) and create a free account.
-2. Under **"Your API Key"**, copy your secret key.
-3. Add to `.env`: `PEXELS_API_KEY=your_key`
-
-### B. TMDB API Key (Free)
-1. Register at [themoviedb.org](https://www.themoviedb.org/).
-2. Navigate to **Settings > API** and request a free *Developer API v3* key.
-3. Add to `.env`: `TMDB_API_KEY=your_key`
-
-### C. YouTube Data API v3 (Google Cloud)
-1. Open [Google Cloud Console](https://console.cloud.google.com/) and create a new project.
-2. Enable **YouTube Data API v3** in **APIs & Services > Library**.
-3. Under **OAuth Consent Screen**, select *External* and add your Google account email as a test user.
-4. Under **Credentials > Create Credentials**, select **OAuth client ID** (Application Type: *Desktop App*).
-5. Download the JSON file, rename it to `client_secrets.json`, and place it in the `shorts_automation/` folder.
-
-### D. Instagram Credentials (instagrapi)
-* Set `INSTAGRAM_USERNAME` and `INSTAGRAM_PASSWORD` in `.env`.
-* The system automatically generates a persistent `session.json` upon first login to avoid checkpoint challenges.
 
 ---
 
