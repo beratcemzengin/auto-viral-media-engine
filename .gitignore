@@ -1,0 +1,76 @@
+# Environment Configuration & Secrets
+.env
+*.env
+!.env.example
+
+# Authentication & API Keys
+client_secrets.json
+credentials.json
+token.json
+session.json
+*.pem
+*.key
+
+# Database & State files
+*.db
+*.db-journal
+*.sqlite3
+data/posted.db
+data/posted_shorts.db
+
+# Media & Render Output Directories
+data/trailers/
+data/output/
+data/bg_clips/
+data/assets/*.png
+output/
+temp/
+*.mp4
+*.mp3
+*.vtt
+*.wav
+*.m4a
+*.jpg
+*.jpeg
+*.png
+
+# Logs
+logs/
+*.log
+*.log.*
+
+# Python Cache & Virtual Environments
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+ENV/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# OS / IDE Generated Files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
+*.zip
+*.tar.gz
