@@ -6,7 +6,11 @@ from googleapiclient.discovery import build
 from googleapiclient.http import MediaFileUpload
 from googleapiclient.errors import HttpError
 from google.auth.transport.requests import Request
-from . import config
+
+try:
+    from . import config
+except ImportError:
+    import config
 
 logger = logging.getLogger("shorts.youtube")
 

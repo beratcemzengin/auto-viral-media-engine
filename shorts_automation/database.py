@@ -2,7 +2,11 @@ import sqlite3
 import os
 import hashlib
 from datetime import datetime
-from . import config
+
+try:
+    from . import config
+except ImportError:
+    import config
 
 DB_PATH = os.path.join(config.DATA_DIR, "posted_shorts.db")
 

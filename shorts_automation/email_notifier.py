@@ -9,7 +9,11 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.base import MIMEBase
 from email import encoders
 from datetime import datetime
-from . import config
+
+try:
+    from . import config
+except ImportError:
+    import config
 
 logger = logging.getLogger("shorts.notifier")
 
