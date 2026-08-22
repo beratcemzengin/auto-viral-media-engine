@@ -162,8 +162,8 @@ def render_frame(monsters_base, differences, positions, frame_idx, total_frames,
     draw.text((width // 2, 160), "Can you find all 3 differences?", fill="#4D96FF", anchor="mm", font=font_sub)
 
     # 2. Draw Top Box (Original)
-    # Box margins: x: 90 to 990 (width 900), y: 220 to 1020 (height 800)
-    draw.rectangle([90, 220, 990, 1020], fill="#FFFFFF", outline="#333333", width=8, radius=20)
+    # Box margins: x: 90 to 990, y: 220 to 1020 (height 800)
+    draw.rounded_rectangle([90, 220, 990, 1020], fill="#FFFFFF", outline="#333333", width=8, radius=20)
     top_draw_img = Image.new('RGBA', (900, 800), (0, 0, 0, 0))
     top_draw = ImageDraw.Draw(top_draw_img)
     for m in monsters_base:
@@ -172,7 +172,7 @@ def render_frame(monsters_base, differences, positions, frame_idx, total_frames,
 
     # 3. Draw Bottom Box (Modified)
     # Box margins: x: 90 to 990, y: 1080 to 1880 (height 800)
-    draw.rectangle([90, 1080, 990, 1880], fill="#FFFFFF", outline="#333333", width=8, radius=20)
+    draw.rounded_rectangle([90, 1080, 990, 1880], fill="#FFFFFF", outline="#333333", width=8, radius=20)
     bottom_draw_img = Image.new('RGBA', (900, 800), (0, 0, 0, 0))
     bottom_draw = ImageDraw.Draw(bottom_draw_img)
     
@@ -203,12 +203,12 @@ def render_frame(monsters_base, differences, positions, frame_idx, total_frames,
         bar_width = int((900) * remaining_ratio)
         if bar_width > 0:
             # Draw timer background track
-            draw.rectangle([90, 1040, 990, 1060], fill="#EAEAEA", radius=10)
+            draw.rounded_rectangle([90, 1040, 990, 1060], fill="#EAEAEA", radius=10)
             # Draw timer progress fill
-            draw.rectangle([90, 1040, 90 + bar_width, 1060], fill="#4D96FF", radius=10)
+            draw.rounded_rectangle([90, 1040, 90 + bar_width, 1060], fill="#4D96FF", radius=10)
     else:
         # Reveal Phase: Draw pulsing red circle outlines over the differences!
-        draw.rectangle([90, 1040, 990, 1060], fill="#EAEAEA", radius=10)
+        draw.rounded_rectangle([90, 1040, 990, 1060], fill="#EAEAEA", radius=10)
         draw.text((width // 2, 1050), "TIME'S UP!", fill="#FF6B6B", anchor="mm", font=font_sub)
         
         # Red pulsing circle reveal helper
