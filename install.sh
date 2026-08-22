@@ -147,6 +147,7 @@ script_generator._seed_stories()
 r_db.init_db()
 print('SQLite databases and 20+ viral script pool ready.')
 "
+chmod +x "$INSTALL_DIR/shorts_automation/run_shorts_with_retry.sh" 2>/dev/null || true
 echo -e "${GREEN}✓ SQLite databases and viral script queues initialized.${NC}\n"
 
 # 6. CRONTAB CONFIGURATION
@@ -169,10 +170,10 @@ if [[ "$CRON_CHOICE" =~ ^[YyEe]$ ]]; then
 0 14 * * * $INSTALL_DIR/venv/bin/python3 $INSTALL_DIR/instagram_reels/main.py >> $INSTALL_DIR/instagram_reels/logs/reels.log 2>&1
 
 # Auto Viral Media Engine - YouTube Shorts (07:30, 11:00, 17:30, 20:00 TR Time)
-30 4 * * * $INSTALL_DIR/venv/bin/python3 $INSTALL_DIR/shorts_automation/main.py >> $INSTALL_DIR/shorts_automation/logs/shorts.log 2>&1
-0 8 * * * $INSTALL_DIR/venv/bin/python3 $INSTALL_DIR/shorts_automation/main.py >> $INSTALL_DIR/shorts_automation/logs/shorts.log 2>&1
-30 14 * * * $INSTALL_DIR/venv/bin/python3 $INSTALL_DIR/shorts_automation/main.py >> $INSTALL_DIR/shorts_automation/logs/shorts.log 2>&1
-0 17 * * * $INSTALL_DIR/venv/bin/python3 $INSTALL_DIR/shorts_automation/main.py >> $INSTALL_DIR/shorts_automation/logs/shorts.log 2>&1
+30 4 * * * $INSTALL_DIR/shorts_automation/run_shorts_with_retry.sh
+0 8 * * * $INSTALL_DIR/shorts_automation/run_shorts_with_retry.sh
+30 14 * * * $INSTALL_DIR/shorts_automation/run_shorts_with_retry.sh
+0 17 * * * $INSTALL_DIR/shorts_automation/run_shorts_with_retry.sh
 
 # Auto Viral Media Engine - Weekly Backup (Sunday 03:00 TR Time)
 0 0 * * 0 $INSTALL_DIR/venv/bin/python3 $INSTALL_DIR/shorts_automation/server_backup_mailer.py >> $INSTALL_DIR/shorts_automation/logs/backup.log 2>&1
