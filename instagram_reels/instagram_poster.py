@@ -2,7 +2,11 @@ import os
 import logging
 from instagrapi import Client
 from instagrapi.exceptions import ChallengeRequired, TwoFactorRequired
-from . import config
+
+try:
+    from . import config
+except ImportError:
+    import config
 
 logger = logging.getLogger("instagram.poster")
 
