@@ -13,10 +13,19 @@ TIMESTAMP=$(date +%Y%m%d_%H%M)
 LOG_FILE="logs/shorts_${TIMESTAMP}.log"
 mkdir -p logs
 
+# Dynamically locate virtualenv python
+if [ -f "$SCRIPTPATH/venv/bin/python3" ]; then
+    PYTHON_EXEC="$SCRIPTPATH/venv/bin/python3"
+elif [ -f "$SCRIPTPATH/../venv/bin/python3" ]; then
+    PYTHON_EXEC="$SCRIPTPATH/../venv/bin/python3"
+else
+    PYTHON_EXEC="python3"
+fi
+
 run_pipeline() {
     local attempt=$1
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] === Attempt ${attempt}/3 starting ===" >> "$LOG_FILE"
-    ./../venv/bin/python3 main.py >> "$LOG_FILE" 2>&1
+    "$PYTHON_EXEC" main.py >> "$LOG_FILE" 2>&1
     return $?
 }
 
