@@ -1,5 +1,10 @@
 import os
+import sys
 import logging
+
+# Setup path fallback
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from kids_shorts import frame_builder, audio_generator, compiler, config
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")

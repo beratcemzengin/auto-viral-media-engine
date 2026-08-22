@@ -1,5 +1,6 @@
 import logging
 import os
+import sys
 import time
 import hashlib
 import json
@@ -8,12 +9,15 @@ import traceback
 from datetime import datetime
 from logging.handlers import RotatingFileHandler
 
+# Setup path fallback
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 try:
-    from . import config
-    from . import database
-    from . import frame_builder
-    from . import audio_generator
-    from . import compiler
+    from kids_shorts import config
+    from kids_shorts import database
+    from kids_shorts import frame_builder
+    from kids_shorts import audio_generator
+    from kids_shorts import compiler
     # Import uploader and notifier from shorts_automation
     from shorts_automation import youtube_uploader
     from shorts_automation import email_notifier
