@@ -80,4 +80,23 @@ def get_posted_count():
     conn.close()
     return count
 
+def optimize_and_clean_database(days_to_keep=90):
+    """Prunes failed logs older than 90 days and vacuums/analyzes to keep SQLite healthy."""
+    conn = get_connection()
+    cursor = conn.cursor()
+    try:
+        # Delete failed logs older than 90 days (keeps success logs so we don't duplicate posts)
+        cursor.execute("DELETE FROM posts WHERE status = 'failed' AND posted_at < datetime('now', ?)", (f"-{days_to_keep} days",))
+        conn.execute("VACUUM")
+        conn.execute("ANALYZE")
+        conn.commit()
+        logger_name = "instagram.database"
+        import logging
+        logging.getLogger(logger_name).info("Database vacuumed, indexed and cleaned successfully.")
+    except Exception as e:
+        import logging
+        logging.getLogger("instagram.database").error(f"Database optimization failed: {e}")
+    finally:
+        conn.close()
+
 init_db()

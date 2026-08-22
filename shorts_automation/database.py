@@ -74,4 +74,21 @@ def get_posted_count() -> int:
     conn.close()
     return count
 
+def optimize_and_clean_database(days_to_keep=90):
+    """Prunes failed logs older than 90 days and vacuums/analyzes to keep SQLite healthy."""
+    conn = get_connection()
+    cursor = conn.cursor()
+    try:
+        cursor.execute("DELETE FROM posted_shorts WHERE status = 'failed' AND posted_at < datetime('now', ?)", (f"-{days_to_keep} days",))
+        conn.execute("VACUUM")
+        conn.execute("ANALYZE")
+        conn.commit()
+        import logging
+        logging.getLogger("shorts.database").info("Database vacuumed, indexed and cleaned successfully.")
+    except Exception as e:
+        import logging
+        logging.getLogger("shorts.database").error(f"Database optimization failed: {e}")
+    finally:
+        conn.close()
+
 init_db()

@@ -1,8 +1,10 @@
 import logging
 import os
 import sys
+import time
 import traceback
 from datetime import datetime
+from logging.handlers import RotatingFileHandler
 
 try:
     from . import config
@@ -30,41 +32,66 @@ logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
     handlers=[
-        logging.FileHandler(log_file, encoding='utf-8'),
+        RotatingFileHandler(log_file, maxBytes=5 * 1024 * 1024, backupCount=5, encoding='utf-8'),
         logging.StreamHandler()
     ]
 )
 logger = logging.getLogger("instagram.main")
 
+def clear_old_temp_files(directory, max_age_hours=24):
+    """Purges stray rendering temp files older than 24 hours."""
+    now = time.time()
+    if not os.path.exists(directory):
+        return
+    for root, _, files in os.walk(directory):
+        for file in files:
+            path = os.path.join(root, file)
+            if os.stat(path).st_mtime < now - (max_age_hours * 3600):
+                if file.endswith(('.mp4', '.ts', '.mp3', '.vtt')):
+                    try:
+                        os.remove(path)
+                        logger.info(f"Purged stray temp file: {path}")
+                    except Exception:
+                        pass
+
 def run_pipeline():
     logger.info("=" * 60)
-    logger.info(f"🎬 Instagram Reels Otomasyonu Başlatıldı - {datetime.now().strftime('%Y-%m-%d %H:%M')}")
+    logger.info(f"🎬 Instagram Reels Automation Started - {datetime.now().strftime('%Y-%m-%d %H:%M')}")
     logger.info("=" * 60)
 
+    # Clean stray temp files on startup
+    clear_old_temp_files(config.DATA_DIR)
+    
+    # Weekly DB maintenance check
+    if datetime.now().weekday() == 6: # Sunday
+        logger.info("Running database vacuum and optimization routine...")
+        database.optimize_and_clean_database()
+
+    last_error_traceback = ""
     for attempt in range(1, 4):
-        logger.info(f"\n--- DENEME {attempt}/3 ---")
+        logger.info(f"\n--- ATTEMPT {attempt}/3 ---")
         item = None
         trailer_path = None
         reel_path = None
         try:
-            # 1. İçerik Keşfi
-            logger.info("Adım 1/6: TMDB üzerinden içerik keşfediliyor...")
+            # 1. Content Discovery
+            logger.info("Step 1/6: Discovering movie/show from TMDB...")
             item = movie_discovery.discover_next_content()
             if not item:
-                logger.warning("Uygun içerik bulunamadı.")
+                logger.warning("No suitable trending movies found.")
                 continue
 
-            logger.info(f"✅ Seçilen: [{item['media_type'].upper()}] {item['title']} (IMDb: {item['vote_average']})")
+            logger.info(f"Selected: [{item['media_type'].upper()}] {item['title']} (IMDb: {item['vote_average']})")
 
-            # 2. Fragman İndirme
-            logger.info("Adım 2/6: Fragman indiriliyor...")
+            # 2. Download Trailer
+            logger.info("Step 2/6: Downloading trailer...")
             trailer_path = trailer_downloader.download_trailer(item["youtube_key"])
             if not trailer_path or not os.path.exists(trailer_path):
-                logger.warning("Fragman indirilemedi.")
+                logger.warning("Failed to download trailer video.")
                 continue
 
-            # 3. Kanca ve Video İşleme
-            logger.info("Adım 3/6: Sinematik Reels montajı yapılıyor...")
+            # 3. Process Video
+            logger.info("Step 3/6: Generating cinematic 9:16 vertical render...")
             hook_text = hook_generator.generate_viral_hook(item["genres_str"], item["vote_average"])
             reel_path = video_processor.process_trailer_to_reel(
                 input_path=trailer_path,
@@ -75,19 +102,19 @@ def run_pipeline():
                 max_duration=config.MAX_REEL_DURATION
             )
             if not reel_path or not os.path.exists(reel_path):
-                logger.warning("Video işleme başarısız.")
+                logger.warning("Failed to render final vertical Reels video.")
                 continue
 
-            # 4. Caption Hazırlama
-            logger.info("Adım 4/6: Açıklama ve hashtagler hazırlanıyor...")
+            # 4. Prepare Caption
+            logger.info("Step 4/6: Building tags and caption...")
             caption = caption_builder.build_caption(item)
 
-            # 5. Instagram'a Yükleme
-            logger.info("Adım 5/6: Instagram Reels'e yükleniyor...")
+            # 5. Publish to Instagram
+            logger.info("Step 5/6: Publishing to Instagram Reels...")
             upload_result = instagram_poster.post_reel(reel_path, caption)
             if upload_result:
-                # 6. Veritabanına Kaydet
-                logger.info("Adım 6/6: Veritabanına kaydediliyor...")
+                # 6. Database Commit
+                logger.info("Step 6/6: Logging success in database...")
                 database.record_post(
                     tmdb_id=item["tmdb_id"],
                     media_type=item["media_type"],
@@ -107,23 +134,23 @@ def run_pipeline():
                 )
 
                 email_notifier.send_notification_email(
-                    platform="Instagram Reels",
+                    platform_name="Instagram Reels",
                     status="SUCCESS",
                     title=f"{item['title']} ({item['media_type'].upper()})",
                     url=upload_result.get("url", "")
                 )
 
-                logger.info("🎉 BAŞARILI! Reel paylaşıldı.")
+                logger.info("🎉 SUCCESS! Reel shared on Instagram.")
                 return True
             else:
-                logger.warning("Instagram yüklemesi başarısız.")
+                logger.warning("Instagram upload step failed.")
 
         except Exception as e:
-            tb = traceback.format_exc()
-            logger.error(f"Deneme hatası: {tb}")
+            last_error_traceback = traceback.format_exc()
+            logger.error(f"Attempt error: {last_error_traceback}")
 
         finally:
-            # Geçici dosyaları temizle
+            # Clean temp files
             if trailer_path and os.path.exists(trailer_path):
                 try: os.remove(trailer_path)
                 except: pass
@@ -131,11 +158,13 @@ def run_pipeline():
                 try: os.remove(reel_path)
                 except: pass
 
+    # If all attempts failed, send diagnostic alert
     email_notifier.send_notification_email(
-        platform="Instagram Reels",
+        platform_name="Instagram Reels",
         status="FAILED",
-        title="Tüm denemeler tükendi",
-        error_msg="3 deneme sonucunda paylaşım yapılamadı."
+        title="All Attempts Exhausted",
+        error_msg=f"Failed to post to Instagram after 3 attempts.\n\nTraceback:\n{last_error_traceback}",
+        attachments=[log_file] if os.path.exists(log_file) else None
     )
     return False
 
