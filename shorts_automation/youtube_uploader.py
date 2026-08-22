@@ -51,7 +51,7 @@ def get_authenticated_service():
     return build("youtube", "v3", credentials=credentials)
 
 
-def upload_video(video_path, title, description, tags=None, max_retries=3):
+def upload_video(video_path, title, description, tags=None, max_retries=3, made_for_kids=False):
     """Uploads video to YouTube as a Short. Includes exponential backoff retries."""
     if not os.path.exists(video_path):
         logger.error(f"Video file not found: {video_path}")
@@ -77,7 +77,7 @@ def upload_video(video_path, title, description, tags=None, max_retries=3):
         },
         "status": {
             "privacyStatus": "public",
-            "selfDeclaredMadeForKids": False,
+            "selfDeclaredMadeForKids": made_for_kids,
         }
     }
 
