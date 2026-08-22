@@ -18,18 +18,23 @@ try:
     from kids_shorts import frame_builder
     from kids_shorts import audio_generator
     from kids_shorts import compiler
-    # Import uploader and notifier from shorts_automation
-    from shorts_automation import youtube_uploader
-    from shorts_automation import email_notifier
 except ImportError:
     import config
     import database
     import frame_builder
     import audio_generator
     import compiler
-    # Fallback to absolute imports
+
+# Safe import for uploader and notifier (supports flat server layout and nested repo layout)
+try:
     from shorts_automation import youtube_uploader
     from shorts_automation import email_notifier
+except ImportError:
+    try:
+        import youtube_uploader
+        import email_notifier
+    except ImportError:
+        raise ImportError("Could not find youtube_uploader or email_notifier modules.")
 
 log_file = os.path.join(config.LOGS_DIR, "kids_shorts.log")
 logging.basicConfig(
@@ -123,6 +128,10 @@ def run_pipeline():
         )
         tags = ["shorts", "spotthedifference", "kidsgames", "puzzles", "quizzes", "kids", "interactive"]
         
+        # Temporary config overrides to use the kids channel's tokens
+        youtube_uploader.config.CREDENTIALS_FILE = config.CREDENTIALS_FILE
+        youtube_uploader.config.CLIENT_SECRETS_FILE = config.CLIENT_SECRETS_FILE
+
         # Call uploader with made_for_kids=True
         upload_url = youtube_uploader.upload_video(
             video_path=final_video_path,
