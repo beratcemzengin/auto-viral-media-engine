@@ -132,13 +132,13 @@ def run_pipeline():
         youtube_uploader.config.CREDENTIALS_FILE = config.CREDENTIALS_FILE
         youtube_uploader.config.CLIENT_SECRETS_FILE = config.CLIENT_SECRETS_FILE
 
-        # Call uploader with made_for_kids=True
+        # Call uploader with made_for_kids=False (General Family Audience to keep comments/notifications enabled)
         upload_url = youtube_uploader.upload_video(
             video_path=final_video_path,
             title=title,
             description=description,
             tags=tags,
-            made_for_kids=True
+            made_for_kids=False
         )
         
         if upload_url:

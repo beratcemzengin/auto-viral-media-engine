@@ -2,7 +2,7 @@ import os
 from pathlib import Path
 from dotenv import load_dotenv
 
-# Load .env from project root
+# Load .env file from project root
 env_path = Path(__file__).resolve().parent.parent / ".env"
 if env_path.exists():
     load_dotenv(dotenv_path=env_path)
@@ -33,7 +33,6 @@ KIDS_COLORS = [
 # UI / Font Settings
 FONT_PATH = os.getenv("FONT_PATH_LINUX", "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf")
 if not os.path.exists(FONT_PATH):
-    # Fallback to local default system font if running on Windows
     FONT_PATH = "arial.ttf"
 
 # Email Settings
@@ -46,3 +45,7 @@ SMTP_USE_TLS = os.getenv("SMTP_USE_TLS", "true").lower() in ("true", "1", "yes")
 
 # Database Path
 DB_PATH = os.path.join(DATA_DIR, "kids_posted.db")
+
+# YouTube API Credentials
+CLIENT_SECRETS_FILE = os.getenv("YOUTUBE_CLIENT_SECRETS_FILE", os.path.join(BASE_DIR, "client_secrets.json"))
+CREDENTIALS_FILE = os.getenv("YOUTUBE_CREDENTIALS_FILE", os.path.join(BASE_DIR, "credentials.json"))
